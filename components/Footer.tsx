@@ -3,11 +3,10 @@ import React from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 
 const Footer: React.FC = () => {
-  // Placeholder social media icons (using simple text for now)
   const socialLinks = [
-    { name: "Facebook", url: "#", icon: "FB" },
-    { name: "Instagram", url: "#", icon: "IG" },
-    { name: "Twitter", url: "#", icon: "TW" },
+    { name: "Facebook", url: "#", icon: "FB" }, // Placeholder, update if FB link provided
+    { name: "Instagram", url: "#", icon: "IG" }, // Placeholder, update if IG link provided
+    { name: "Twitter", url: "https://twitter.com/cela_events", icon: "X" },
   ];
 
   return (
@@ -31,14 +30,16 @@ const Footer: React.FC = () => {
           </div>
           <div>
             <h3 className="text-lg font-semibold text-white mb-4">Contact Us</h3>
-            <p className="text-neutral-300 text-sm">123 Event Lane, Celebration City, EC 45678</p>
-            <p className="text-neutral-300 text-sm">Email: <a href="mailto:info@celaevents.com" className="hover:text-primary">info@celaevents.com</a></p>
-            <p className="text-neutral-300 text-sm">Phone: <a href="tel:+1234567890" className="hover:text-primary">+123-456-7890</a></p>
+            <p className="text-neutral-300 text-sm">Kampala, Uganda</p>
+            <p className="text-neutral-300 text-sm">Email: <a href="mailto:celiacelacee@gmail.com" className="hover:text-primary">celiacelacee@gmail.com</a></p>
+            <p className="text-neutral-300 text-sm">
+              Phone: <a href="tel:+256707589256" className="hover:text-primary">+256 707 589 256</a> / <a href="tel:+256768587590" className="hover:text-primary">+256 768 587 590</a>
+            </p>
             <div className="mt-4 flex space-x-4">
               {socialLinks.map(link => (
                 <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer"
+                   aria-label={`Follow us on ${link.name}`}
                    className="text-neutral-300 hover:text-primary h-8 w-8 flex items-center justify-center border border-neutral-300 rounded-full hover:border-primary transition-colors">
-                  {/* Replace with actual SVG icons if available */}
                   <span className="text-xs">{link.icon}</span>
                 </a>
               ))}

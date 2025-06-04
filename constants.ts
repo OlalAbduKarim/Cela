@@ -1,4 +1,3 @@
-
 import { EventCategory, Event, Letter } from './types';
 
 export const ADMIN_PASSWORD = 'Cela@christ7'; // Simple password for demo purposes
@@ -13,6 +12,42 @@ export const EVENT_CATEGORIES: EventCategory[] = [
 ];
 
 export const INITIAL_EVENTS: Event[] = [
+  {
+    id: 'murchison2025',
+    title: 'Ramble to Murchison',
+    category: EventCategory.TOURS,
+    date: '2025-06-20', // Start date of 20th-22nd June 2025
+    location: 'Murchison Falls National Park',
+    descriptionShort: 'Experience a 3-day & 2-night thrilling adventure at Murchison Falls National Park. Includes game drives, boat cruises, chimpanzee trekking, and more!',
+    descriptionFull: `Embark on an unforgettable 3-day and 2-night "Ramble to Murchison" at the majestic Murchison Falls National Park!
+
+**Activities:**
+*   Game drive to spot diverse wildlife
+*   Boat cruise along the Nile to watch hippos and other aquatic life
+*   Chimpanzee trekking in Budongo Forest
+*   Bird watching
+*   Visit to the breathtaking Top of the Murchison Falls
+*   Guided nature walks
+
+**Fee Includes:**
+*   Accommodation (sharing basis)
+*   Transportation
+*   Meals
+*   All listed activities
+
+**Trip Fees:** 350,000 UGX
+**Booking Fee:** 100,000 UGX
+
+**Pick-up & Departure:**
+*   Station: Oryx Fuel Station, Lugogo Forest Mall
+*   Departure Time: 8:00 AM
+
+This trip is presented by CELA TRIPS.
+For Bookings & Payments, Contact/Call/WhatsApp: +256 768 587 590 or +256 707 589 256.
+Twitter: @cela_trips`,
+    images: ['/assets/murchison-poster.jpg'], // Updated to use the local poster image
+    featured: true,
+  },
   {
     id: '1',
     title: 'Summer Beach Party',

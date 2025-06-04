@@ -119,9 +119,14 @@ const App: React.FC = () => {
           <Modal isOpen={bookingModalOpen} onClose={closeBookingModal} title={`Book Tickets for ${currentEventForBooking.title}`}>
             <div className="text-neutral-dark">
               <p className="mb-4">To book your tickets for <strong>{currentEventForBooking.title}</strong>, please contact us through one of the following methods:</p>
-              <ul className="list-disc list-inside mb-4">
-                <li>Email: <a href="mailto:book@celaevents.com" className="text-primary hover:underline">book@celaevents.com</a></li>
-                <li>Phone: <a href="tel:+1234567890" className="text-primary hover:underline">+123-456-7890</a></li>
+              <ul className="list-disc list-inside mb-4 space-y-1">
+                <li>Email: <a href="mailto:celiacelacee@gmail.com" className="text-primary hover:underline">celiacelacee@gmail.com</a></li>
+                <li>Phone: 
+                  <ul className="list-none pl-5">
+                    <li><a href="tel:+256707589256" className="text-primary hover:underline">+256 707 589 256</a></li>
+                    <li><a href="tel:+256768587590" className="text-primary hover:underline">+256 768 587 590</a></li>
+                  </ul>
+                </li>
               </ul>
               <p>Please mention the event name and number of tickets required.</p>
               <p className="mt-4 text-sm text-neutral">We are currently developing an online booking system for your convenience. Thank you for your understanding!</p>
