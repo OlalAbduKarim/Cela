@@ -1,10 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Event, Letter, EventCategory } from '../types';
 import { EVENT_CATEGORIES } from '../constants';
 import AdminLayout from '../components/AdminLayout';
 import Modal from '../components/Modal';
-import { PlusIcon, PencilSquareIcon, TrashIcon, EyeIcon } from '@heroicons/react/24/solid';
+import { PlusIcon, PencilSquareIcon, TrashIcon, EyeIcon, XMarkIcon as XMarkIconSolid, PhotoIcon } from '@heroicons/react/24/solid';
 import * as ReactRouterDOM from 'react-router-dom';
 
 interface AdminDashboardPageProps {
@@ -49,6 +49,7 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   const [letterFormMode, setLetterFormMode] = useState<FormMode>('add');
   const [currentEvent, setCurrentEvent] = useState<Event | Omit<Event, 'id'>>(emptyEvent);
   const [currentLetter, setCurrentLetter] = useState<Letter | Omit<Letter, 'id'>>(emptyLetter);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Event Handlers
   const handleOpenAddEventModal = () => {
@@ -69,13 +70,57 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
     
     if (target instanceof HTMLInputElement && target.type === 'checkbox') {
          setCurrentEvent(prev => ({ ...prev, [name]: target.checked }));
-    } else if (name === 'images' && target instanceof HTMLInputElement) {
-        setCurrentEvent(prev => ({ ...prev, images: target.value.split(',').map(img => img.trim()).filter(img => img !== '') }));
-    }
-    else { // Handles text inputs, textareas, selects (value property)
+    } else {
         setCurrentEvent(prev => ({ ...prev, [name]: target.value }));
     }
   };
+  
+  const processFiles = (files: FileList | null) => {
+    if (files) {
+      const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+      imageFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setCurrentEvent(prev => ({
+            ...prev,
+            images: [...(prev.images || []), reader.result as string],
+          }));
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    processFiles(e.target.files);
+  };
+
+  const handleImageDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    processFiles(e.dataTransfer.files);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+  
+  const handleRemoveImage = (indexToRemove: number) => {
+    setCurrentEvent(prev => ({
+        ...prev,
+        images: (prev.images || []).filter((_, index) => index !== indexToRemove),
+    }));
+  };
+
 
   const handleEventSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,6 +130,7 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
       onUpdateEvent(currentEvent as Event);
     }
     setIsEventModalOpen(false);
+    setIsDragging(false); // Reset drag state
   };
 
   // Letter Handlers
@@ -196,7 +242,6 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral">{new Date(letter.publishDate).toLocaleDateString()}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral">{letter.author}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                        {/* View link for letters can be added if a detail page for letters is implemented */}
                         <button onClick={() => handleOpenEditLetterModal(letter)} className="text-yellow-500 hover:text-yellow-700" title="Edit Announcement">
                             <PencilSquareIcon className="h-5 w-5 inline"/>
                         </button>
@@ -212,7 +257,7 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
       </section>
 
       {/* Event Modal */}
-      <Modal isOpen={isEventModalOpen} onClose={() => setIsEventModalOpen(false)} title={eventFormMode === 'add' ? 'Add New Event' : 'Edit Event'} size="xl">
+      <Modal isOpen={isEventModalOpen} onClose={() => { setIsEventModalOpen(false); setIsDragging(false); }} title={eventFormMode === 'add' ? 'Add New Event' : 'Edit Event'} size="xl">
         <form onSubmit={handleEventSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto p-2">
           <div>
             <label htmlFor="title" className={commonLabelClass}>Title</label>
@@ -242,16 +287,64 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
             <label htmlFor="descriptionFull" className={commonLabelClass}>Full Description</label>
             <textarea name="descriptionFull" id="descriptionFull" value={(currentEvent as Event).descriptionFull} onChange={handleEventFormChange} rows={6} className={commonInputClass} required />
           </div>
+          
+          {/* Image Upload Section */}
           <div>
-            <label htmlFor="images" className={commonLabelClass}>Image URLs (comma-separated)</label>
-            <input type="text" name="images" id="images" value={(currentEvent as Event).images?.join(', ')} onChange={handleEventFormChange} className={commonInputClass} placeholder="https://picsum.photos/seed/eventX/800/600, ..."/>
+            <label htmlFor="image-upload-input" className={commonLabelClass}>Images</label>
+            <div
+              className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 ${isDragging ? 'border-primary' : 'border-neutral-300'} border-dashed rounded-md cursor-pointer hover:border-primary transition-colors`}
+              onDrop={handleImageDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              aria-labelledby="image-upload-label"
+            >
+              <div className="space-y-1 text-center">
+                <PhotoIcon className="mx-auto h-12 w-12 text-neutral-400" aria-hidden="true" />
+                <div className="flex text-sm text-neutral-600">
+                  <label
+                    id="image-upload-label"
+                    htmlFor="image-upload-input"
+                    className="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-blue-700 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary"
+                  >
+                    <span>Upload files</span>
+                    <input id="image-upload-input" name="image-upload-input" type="file" className="sr-only" multiple accept="image/*" onChange={handleImageFileChange} />
+                  </label>
+                  <p className="pl-1">or drag and drop</p>
+                </div>
+                <p className="text-xs text-neutral-500">PNG, JPG, GIF, WebP</p>
+              </div>
+            </div>
           </div>
+
+          {/* Image Previews */}
+          {(currentEvent.images && currentEvent.images.length > 0) && (
+            <div className="mt-4">
+              <p className={commonLabelClass}>Selected Images ({currentEvent.images.length}):</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mt-2">
+                {currentEvent.images.map((imageSrc, index) => (
+                  <div key={index} className="relative group aspect-square">
+                    <img src={imageSrc} alt={`Preview ${index + 1}`} className="object-cover w-full h-full rounded-md shadow-md" />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(index)}
+                      className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-0.5 hover:bg-red-700 opacity-80 group-hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-red-500"
+                      aria-label={`Remove image ${index + 1}`}
+                    >
+                      <XMarkIconSolid className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* End Image Upload Section */}
+
           <div className="flex items-center">
             <input type="checkbox" name="featured" id="featured" checked={(currentEvent as Event).featured || false} onChange={handleEventFormChange} className="h-4 w-4 text-primary border-neutral-300 rounded focus:ring-primary" />
             <label htmlFor="featured" className="ml-2 block text-sm text-neutral-700">Featured Event</label>
           </div>
           <div className="pt-2 flex justify-end space-x-2">
-            <button type="button" onClick={() => setIsEventModalOpen(false)} className="px-4 py-2 border border-neutral-300 rounded-md text-sm font-medium text-neutral-700 hover:bg-neutral-light">Cancel</button>
+            <button type="button" onClick={() => { setIsEventModalOpen(false); setIsDragging(false); }} className="px-4 py-2 border border-neutral-300 rounded-md text-sm font-medium text-neutral-700 hover:bg-neutral-light">Cancel</button>
             <button type="submit" className="px-4 py-2 bg-primary hover:bg-blue-700 text-white text-sm font-medium rounded-md">{eventFormMode === 'add' ? 'Add Event' : 'Save Changes'}</button>
           </div>
         </form>

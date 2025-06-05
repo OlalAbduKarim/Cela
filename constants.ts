@@ -1,3 +1,4 @@
+
 import { EventCategory, Event, Letter } from './types';
 
 export const ADMIN_PASSWORD = 'Cela@christ7'; // Simple password for demo purposes
@@ -45,7 +46,7 @@ export const INITIAL_EVENTS: Event[] = [
 This trip is presented by CELA TRIPS.
 For Bookings & Payments, Contact/Call/WhatsApp: +256 768 587 590 or +256 707 589 256.
 Twitter: @cela_trips`,
-    images: ['/assets/murchison-poster.jpg'], // Updated to use the local poster image
+    images: ['https://picsum.photos/seed/murchison_falls_uganda_gamepark/800/600'], // Updated placeholder
     featured: true,
   },
   {
